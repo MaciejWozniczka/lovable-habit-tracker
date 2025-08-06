@@ -231,7 +231,7 @@ export function StatisticsTab({ token }: StatisticsTabProps) {
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
             {/* Weekly Activity */}
             <div className="glass-card p-6 rounded-2xl">
               <h3 className="text-lg font-semibold mb-4">Aktywność w tym tygodniu</h3>
@@ -258,34 +258,6 @@ export function StatisticsTab({ token }: StatisticsTabProps) {
               </ResponsiveContainer>
             </div>
 
-            {/* Habit Performance */}
-            <div className="glass-card p-6 rounded-2xl">
-              <h3 className="text-lg font-semibold mb-4">Skuteczność nawyków</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={habitPerformance} layout="horizontal">
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border-glass))" />
-                  <XAxis type="number" domain={[0, 100]} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" width={80} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--background-secondary))', 
-                      border: '1px solid hsl(var(--border-glass))',
-                      borderRadius: '8px'
-                    }}
-                  />
-                  <Bar dataKey="rate" fill="url(#gradient2)" radius={4} />
-                  <defs>
-                    <linearGradient id="gradient2" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="hsl(258, 90%, 66%)" />
-                      <stop offset="100%" stopColor="hsl(310, 85%, 60%)" />
-                    </linearGradient>
-                  </defs>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Monthly Trend */}
             <div className="glass-card p-6 rounded-2xl">
               <h3 className="text-lg font-semibold mb-4">Trend miesięczny</h3>
@@ -309,7 +281,7 @@ export function StatisticsTab({ token }: StatisticsTabProps) {
                     dot={{ fill: "hsl(258, 90%, 66%)", strokeWidth: 2, r: 4 }}
                   />
                 </LineChart>
-              </ResponsiveContainer>
+                </ResponsiveContainer>
             </div>
 
             {/* Habit Distribution */}
