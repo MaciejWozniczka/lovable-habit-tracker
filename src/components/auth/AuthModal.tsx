@@ -18,6 +18,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [registerData, setRegisterData] = useState({ email: "", password: "", confirmPassword: "" });
+  const [activeTab, setActiveTab] = useState("login");
   const { toast } = useToast();
 
   const API_URL = "https://lifemanager.bieda.it";
@@ -93,8 +94,9 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           title: "Konto utworzone!",
           description: "Możesz się teraz zalogować.",
         });
-        // Auto-login after registration
-        await handleLogin(e);
+        // Switch to login tab after successful registration
+        setActiveTab("login");
+        setRegisterData({ email: "", password: "", confirmPassword: "" });
       } else {
         throw new Error(result.errors?.[0]?.message || 'Błąd rejestracji');
       }
@@ -118,7 +120,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="glass border-border-glass w-full">
             <TabsTrigger value="login" className="flex-1">Logowanie</TabsTrigger>
             <TabsTrigger value="register" className="flex-1">Rejestracja</TabsTrigger>
