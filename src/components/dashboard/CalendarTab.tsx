@@ -49,11 +49,19 @@ export function CalendarTab({ token }: CalendarTabProps) {
   };
 
   const toggleHabitCheck = async (habitId: string, date: Date) => {
-    const dateString = date.toISOString();
+    // Create date string in local timezone to avoid UTC conversion issues
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}T00:00:00.000Z`;
+    
     const habit = habits.find(h => h.id === habitId);
-    const existingCheck = habit?.habitCheck?.find(check => 
-      new Date(check.date).toDateString() === date.toDateString()
-    );
+    const existingCheck = habit?.habitCheck?.find(check => {
+      const checkDate = new Date(check.date);
+      return checkDate.getFullYear() === date.getFullYear() &&
+             checkDate.getMonth() === date.getMonth() &&
+             checkDate.getDate() === date.getDate();
+    });
 
     try {
       if (existingCheck?.isDone) {
@@ -98,9 +106,13 @@ export function CalendarTab({ token }: CalendarTabProps) {
 
   const isHabitCompleted = (habitId: string, date: Date) => {
     const habit = habits.find(h => h.id === habitId);
-    return habit?.habitCheck?.some(check => 
-      check.isDone && new Date(check.date).toDateString() === date.toDateString()
-    ) || false;
+    return habit?.habitCheck?.some(check => {
+      if (!check.isDone) return false;
+      const checkDate = new Date(check.date);
+      return checkDate.getFullYear() === date.getFullYear() &&
+             checkDate.getMonth() === date.getMonth() &&
+             checkDate.getDate() === date.getDate();
+    }) || false;
   };
 
   const getDaysInMonth = (date: Date) => {
