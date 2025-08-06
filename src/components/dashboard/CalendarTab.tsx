@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Habit {
@@ -28,8 +32,8 @@ export function CalendarTab({ token }: CalendarTabProps) {
     try {
       const response = await fetch(`${API_URL}/api/user/habits`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
@@ -51,26 +55,28 @@ export function CalendarTab({ token }: CalendarTabProps) {
   const toggleHabitCheck = async (habitId: string, date: Date) => {
     // Create date string in local timezone to avoid UTC conversion issues
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     const dateString = `${year}-${month}-${day}T00:00:00.000Z`;
-    
-    const habit = habits.find(h => h.id === habitId);
-    const existingCheck = habit?.habitCheck?.find(check => {
+
+    const habit = habits.find((h) => h.id === habitId);
+    const existingCheck = habit?.habitCheck?.find((check) => {
       const checkDate = new Date(check.date);
-      return checkDate.getFullYear() === date.getFullYear() &&
-             checkDate.getMonth() === date.getMonth() &&
-             checkDate.getDate() === date.getDate();
+      return (
+        checkDate.getFullYear() === date.getFullYear() &&
+        checkDate.getMonth() === date.getMonth() &&
+        checkDate.getDate() === date.getDate()
+      );
     });
 
     try {
       if (existingCheck?.isDone) {
         // Remove check
         const response = await fetch(`${API_URL}/api/habit/${habitId}/check`, {
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ date: dateString }),
         });
@@ -82,10 +88,10 @@ export function CalendarTab({ token }: CalendarTabProps) {
       } else {
         // Add check
         const response = await fetch(`${API_URL}/api/habit/${habitId}/check`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ date: dateString }),
         });
@@ -105,14 +111,18 @@ export function CalendarTab({ token }: CalendarTabProps) {
   };
 
   const isHabitCompleted = (habitId: string, date: Date) => {
-    const habit = habits.find(h => h.id === habitId);
-    return habit?.habitCheck?.some(check => {
-      if (!check.isDone) return false;
-      const checkDate = new Date(check.date);
-      return checkDate.getFullYear() === date.getFullYear() &&
-             checkDate.getMonth() === date.getMonth() &&
-             checkDate.getDate() === date.getDate();
-    }) || false;
+    const habit = habits.find((h) => h.id === habitId);
+    return (
+      habit?.habitCheck?.some((check) => {
+        if (!check.isDone) return false;
+        const checkDate = new Date(check.date);
+        return (
+          checkDate.getFullYear() === date.getFullYear() &&
+          checkDate.getMonth() === date.getMonth() &&
+          checkDate.getDate() === date.getDate()
+        );
+      }) || false
+    );
   };
 
   const getDaysInMonth = (date: Date) => {
@@ -124,26 +134,30 @@ export function CalendarTab({ token }: CalendarTabProps) {
     const startingDayOfWeek = firstDay.getDay();
 
     const days = [];
-    
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
-    
+
     // Add all days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(new Date(year, month, day));
     }
-    
+
     return days;
   };
 
   const previousMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
+    );
   };
 
   const nextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+    );
   };
 
   const isToday = (date: Date) => {
@@ -152,8 +166,18 @@ export function CalendarTab({ token }: CalendarTabProps) {
   };
 
   const monthNames = [
-    "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec",
-    "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"
+    "Styczeń",
+    "Luty",
+    "Marzec",
+    "Kwiecień",
+    "Maj",
+    "Czerwiec",
+    "Lipiec",
+    "Sierpień",
+    "Wrzesień",
+    "Październik",
+    "Listopad",
+    "Grudzień",
   ];
 
   const dayNames = ["Ndz", "Pon", "Wt", "Śr", "Czw", "Pt", "Sob"];
@@ -176,18 +200,30 @@ export function CalendarTab({ token }: CalendarTabProps) {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gradient">Kalendarz nawyków</h2>
+          <h2 className="text-2xl font-bold text-gradient">
+            Kalendarz nawyków
+          </h2>
           <p className="text-muted-foreground">Śledź swoje codzienne postępy</p>
         </div>
-        
+
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={previousMonth} className="glass-card border-border-glass">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={previousMonth}
+            className="glass-card border-border-glass"
+          >
             <ChevronLeft className="w-4 h-4" />
           </Button>
           <div className="text-lg font-semibold min-w-[200px] text-center">
             {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
           </div>
-          <Button variant="outline" size="sm" onClick={nextMonth} className="glass-card border-border-glass">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={nextMonth}
+            className="glass-card border-border-glass"
+          >
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
@@ -196,7 +232,9 @@ export function CalendarTab({ token }: CalendarTabProps) {
       {habits.length === 0 ? (
         <div className="text-center py-12">
           <CalendarIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">Brak nawyków do śledzenia</h3>
+          <h3 className="text-xl font-semibold mb-2">
+            Brak nawyków do śledzenia
+          </h3>
           <p className="text-muted-foreground">
             Dodaj nawyki w zakładce "Nawyki", aby móc je śledzić w kalendarzu
           </p>
@@ -205,8 +243,11 @@ export function CalendarTab({ token }: CalendarTabProps) {
         <div className="glass-card p-6 rounded-2xl">
           {/* Days of week header */}
           <div className="grid grid-cols-7 gap-2 mb-4">
-            {dayNames.map(day => (
-              <div key={day} className="text-center text-sm font-medium text-muted-foreground p-2">
+            {dayNames.map((day) => (
+              <div
+                key={day}
+                className="text-center text-sm font-medium text-muted-foreground p-2"
+              >
                 {day}
               </div>
             ))}
@@ -218,11 +259,11 @@ export function CalendarTab({ token }: CalendarTabProps) {
               <div
                 key={index}
                 className={`min-h-[120px] p-2 rounded-lg border transition-all ${
-                  date 
+                  date
                     ? isToday(date)
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border-glass hover:border-primary/50'
-                    : 'border-transparent'
+                      ? "border-primary bg-primary/10"
+                      : "border-border-glass hover:border-primary/50"
+                    : "border-transparent"
                 }`}
               >
                 {date && (
@@ -231,18 +272,20 @@ export function CalendarTab({ token }: CalendarTabProps) {
                       {date.getDate()}
                     </div>
                     <div className="space-y-1">
-                      {habits.map(habit => (
+                      {habits.map((habit) => (
                         <button
                           key={habit.id}
                           onClick={() => toggleHabitCheck(habit.id, date)}
                           className={`w-full text-xs p-1 rounded transition-all ${
                             isHabitCompleted(habit.id, date)
-                              ? 'gradient-primary text-white font-medium'
-                              : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                              ? "gradient-primary text-white font-medium"
+                              : "bg-muted hover:bg-muted/80 text-muted-foreground"
                           }`}
                           title={habit.name}
                         >
-                          {habit.name.length > 10 ? `${habit.name.substring(0, 10)}...` : habit.name}
+                          {habit.name.length > 20
+                            ? `${habit.name.substring(0, 20)}...`
+                            : habit.name}
                         </button>
                       ))}
                     </div>
