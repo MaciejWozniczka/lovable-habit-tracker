@@ -19,6 +19,40 @@ interface HabitsTabProps {
   token: string;
 }
 
+// MOCK: Przykładowe dane nawyków
+const mockHabitsData: Habit[] = [
+  {
+    id: "1",
+    name: "Ćwiczenia",
+    habitCheck: [
+      { isDone: true, date: "2025-12-15" },
+      { isDone: true, date: "2025-12-16" },
+      { isDone: false, date: "2025-12-17" },
+      { isDone: true, date: "2025-12-18" },
+    ]
+  },
+  {
+    id: "2",
+    name: "Czytanie",
+    habitCheck: [
+      { isDone: true, date: "2025-12-15" },
+      { isDone: true, date: "2025-12-16" },
+      { isDone: true, date: "2025-12-17" },
+      { isDone: true, date: "2025-12-18" },
+    ]
+  },
+  {
+    id: "3",
+    name: "Medytacja",
+    habitCheck: [
+      { isDone: false, date: "2025-12-15" },
+      { isDone: true, date: "2025-12-16" },
+      { isDone: true, date: "2025-12-17" },
+      { isDone: false, date: "2025-12-18" },
+    ]
+  }
+];
+
 export function HabitsTab({ token }: HabitsTabProps) {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,102 +61,55 @@ export function HabitsTab({ token }: HabitsTabProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  const API_URL = "https://lifemanager.bieda.it";
-
-  const fetchHabits = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/user/habits`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const result = await response.json();
-      if (result.success && result.value?.habits) {
-        setHabits(result.value.habits);
-      }
-    } catch (error) {
-      toast({
-        title: "Błąd",
-        description: "Nie udało się pobrać nawyków.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+  // MOCK: Ładowanie danych z localStorage lub domyślnych
+  useEffect(() => {
+    const savedHabits = localStorage.getItem('mockHabits');
+    if (savedHabits) {
+      setHabits(JSON.parse(savedHabits));
+    } else {
+      setHabits(mockHabitsData);
+      localStorage.setItem('mockHabits', JSON.stringify(mockHabitsData));
     }
-  };
+    setIsLoading(false);
+  }, [token]);
 
+  // MOCK: Dodawanie nawyku
   const addHabit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newHabitName.trim()) return;
 
     setIsAdding(true);
-    try {
-      const response = await fetch(`${API_URL}/api/habit`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: newHabitName }),
-      });
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-      const result = await response.json();
-      if (result.success) {
-        setNewHabitName("");
-        setIsDialogOpen(false);
-        await fetchHabits();
-        toast({
-          title: "Sukces!",
-          description: "Nawyk został dodany.",
-        });
-      } else {
-        throw new Error(result.errors?.[0]?.message || 'Błąd dodawania nawyku');
-      }
-    } catch (error) {
-      toast({
-        title: "Błąd",
-        description: error instanceof Error ? error.message : "Nie udało się dodać nawyku.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsAdding(false);
-    }
+    const newHabit: Habit = {
+      id: Date.now().toString(),
+      name: newHabitName,
+      habitCheck: []
+    };
+
+    const updatedHabits = [...habits, newHabit];
+    setHabits(updatedHabits);
+    localStorage.setItem('mockHabits', JSON.stringify(updatedHabits));
+    
+    setNewHabitName("");
+    setIsDialogOpen(false);
+    toast({
+      title: "Sukces!",
+      description: "Nawyk został dodany (tryb demo).",
+    });
+    setIsAdding(false);
   };
 
+  // MOCK: Usuwanie nawyku
   const deleteHabit = async (habitId: string) => {
-    try {
-      const response = await fetch(`${API_URL}/api/habit/${habitId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        await fetchHabits();
-        toast({
-          title: "Usunięto",
-          description: "Nawyk został usunięty.",
-        });
-      } else {
-        throw new Error(result.errors?.[0]?.message || 'Błąd usuwania nawyku');
-      }
-    } catch (error) {
-      toast({
-        title: "Błąd",
-        description: error instanceof Error ? error.message : "Nie udało się usunąć nawyku.",
-        variant: "destructive",
-      });
-    }
+    const updatedHabits = habits.filter(h => h.id !== habitId);
+    setHabits(updatedHabits);
+    localStorage.setItem('mockHabits', JSON.stringify(updatedHabits));
+    toast({
+      title: "Usunięto",
+      description: "Nawyk został usunięty (tryb demo).",
+    });
   };
-
-  useEffect(() => {
-    fetchHabits();
-  }, [token]);
 
   if (isLoading) {
     return (

@@ -26,88 +26,50 @@ export function CalendarTab({ token }: CalendarTabProps) {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const API_URL = "https://lifemanager.bieda.it";
-
-  const fetchHabits = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/user/habits`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      const result = await response.json();
-      if (result.success && result.value?.habits) {
-        setHabits(result.value.habits);
-      }
-    } catch (error) {
-      toast({
-        title: "Błąd",
-        description: "Nie udało się pobrać nawyków.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+  // MOCK: Ładowanie danych z localStorage
+  const loadHabits = () => {
+    const savedHabits = localStorage.getItem('mockHabits');
+    if (savedHabits) {
+      setHabits(JSON.parse(savedHabits));
     }
+    setIsLoading(false);
   };
 
+  // MOCK: Toggle habit check
   const toggleHabitCheck = async (habitId: string, date: Date) => {
-    // Create date string in local timezone to avoid UTC conversion issues
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     const dateString = `${year}-${month}-${day}T00:00:00.000Z`;
 
-    const habit = habits.find((h) => h.id === habitId);
-    const existingCheck = habit?.habitCheck?.find((check) => {
-      const checkDate = new Date(check.date);
-      return (
-        checkDate.getFullYear() === date.getFullYear() &&
-        checkDate.getMonth() === date.getMonth() &&
-        checkDate.getDate() === date.getDate()
-      );
-    });
+    const updatedHabits = habits.map(habit => {
+      if (habit.id !== habitId) return habit;
 
-    try {
-      if (existingCheck?.isDone) {
+      const existingCheckIndex = habit.habitCheck?.findIndex((check) => {
+        const checkDate = new Date(check.date);
+        return (
+          checkDate.getFullYear() === date.getFullYear() &&
+          checkDate.getMonth() === date.getMonth() &&
+          checkDate.getDate() === date.getDate()
+        );
+      }) ?? -1;
+
+      if (existingCheckIndex !== -1 && habit.habitCheck[existingCheckIndex].isDone) {
         // Remove check
-        const response = await fetch(`${API_URL}/api/habit/${habitId}/check`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ date: dateString }),
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          await fetchHabits(); // Refresh data
-        }
+        const newChecks = [...habit.habitCheck];
+        newChecks.splice(existingCheckIndex, 1);
+        return { ...habit, habitCheck: newChecks };
       } else {
         // Add check
-        const response = await fetch(`${API_URL}/api/habit/${habitId}/check`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ date: dateString }),
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          await fetchHabits(); // Refresh data
-        }
+        return {
+          ...habit,
+          habitCheck: [...(habit.habitCheck || []), { isDone: true, date: dateString }]
+        };
       }
-    } catch (error) {
-      toast({
-        title: "Błąd",
-        description: "Nie udało się zaktualizować nawyku.",
-        variant: "destructive",
-      });
-    }
+    });
+
+    setHabits(updatedHabits);
+    localStorage.setItem('mockHabits', JSON.stringify(updatedHabits));
   };
 
   const isHabitCompleted = (habitId: string, date: Date) => {
@@ -183,7 +145,7 @@ export function CalendarTab({ token }: CalendarTabProps) {
   const dayNames = ["Ndz", "Pon", "Wt", "Śr", "Czw", "Pt", "Sob"];
 
   useEffect(() => {
-    fetchHabits();
+    loadHabits();
   }, [token]);
 
   if (isLoading) {

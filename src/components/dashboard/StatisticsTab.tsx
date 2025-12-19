@@ -19,30 +19,13 @@ export function StatisticsTab({ token }: StatisticsTabProps) {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const API_URL = "https://lifemanager.bieda.it";
-
-  const fetchHabits = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/user/habits`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const result = await response.json();
-      if (result.success && result.value?.habits) {
-        setHabits(result.value.habits);
-      }
-    } catch (error) {
-      console.error('Error fetching habits:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // MOCK: Ładowanie danych z localStorage
   useEffect(() => {
-    fetchHabits();
+    const savedHabits = localStorage.getItem('mockHabits');
+    if (savedHabits) {
+      setHabits(JSON.parse(savedHabits));
+    }
+    setIsLoading(false);
   }, [token]);
 
   // Calculate statistics

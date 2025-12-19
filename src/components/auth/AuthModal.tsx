@@ -21,44 +21,24 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState("login");
   const { toast } = useToast();
 
-  const API_URL = "https://lifemanager.bieda.it";
-
+  // MOCK: Symulowane logowanie
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const response = await fetch(`${API_URL}/api/auth`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(loginData),
-      });
+    // Symulacja opóźnienia sieciowego
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-      const result = await response.json();
-
-      if (result.success && result.value?.accessToken) {
-        localStorage.setItem('authToken', result.value.accessToken);
-        localStorage.setItem('userId', result.value.id);
-        onSuccess(result.value.accessToken);
-        onClose();
-        toast({
-          title: "Witamy!",
-          description: "Zalogowano pomyślnie.",
-        });
-      } else {
-        throw new Error(result.errors?.[0]?.message || 'Błąd logowania');
-      }
-    } catch (error) {
-      toast({
-        title: "Błąd logowania",
-        description: error instanceof Error ? error.message : "Sprawdź dane i spróbuj ponownie.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    const mockToken = "mock-token-" + Date.now();
+    localStorage.setItem('authToken', mockToken);
+    localStorage.setItem('userId', 'mock-user-id');
+    onSuccess(mockToken);
+    onClose();
+    toast({
+      title: "Witamy!",
+      description: "Zalogowano pomyślnie (tryb demo).",
+    });
+    setIsLoading(false);
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -75,40 +55,16 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
     setIsLoading(true);
 
-    try {
-      const response = await fetch(`${API_URL}/api/user`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: registerData.email,
-          password: registerData.password,
-        }),
-      });
+    // Symulacja opóźnienia sieciowego
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-      const result = await response.json();
-
-      if (result.success) {
-        toast({
-          title: "Konto utworzone!",
-          description: "Możesz się teraz zalogować.",
-        });
-        // Switch to login tab after successful registration
-        setActiveTab("login");
-        setRegisterData({ email: "", password: "", confirmPassword: "" });
-      } else {
-        throw new Error(result.errors?.[0]?.message || 'Błąd rejestracji');
-      }
-    } catch (error) {
-      toast({
-        title: "Błąd rejestracji",
-        description: error instanceof Error ? error.message : "Spróbuj ponownie.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    toast({
+      title: "Konto utworzone!",
+      description: "Możesz się teraz zalogować (tryb demo).",
+    });
+    setActiveTab("login");
+    setRegisterData({ email: "", password: "", confirmPassword: "" });
+    setIsLoading(false);
   };
 
   return (
