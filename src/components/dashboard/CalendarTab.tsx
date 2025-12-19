@@ -143,6 +143,7 @@ export function CalendarTab({ token }: CalendarTabProps) {
   ];
 
   const dayNames = ["Ndz", "Pon", "Wt", "Śr", "Czw", "Pt", "Sob"];
+  const fullDayNames = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
 
   useEffect(() => {
     loadHabits();
@@ -160,7 +161,7 @@ export function CalendarTab({ token }: CalendarTabProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gradient">
             Kalendarz nawyków
@@ -177,7 +178,7 @@ export function CalendarTab({ token }: CalendarTabProps) {
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
-          <div className="text-lg font-semibold min-w-[200px] text-center">
+          <div className="text-lg font-semibold min-w-[160px] md:min-w-[200px] text-center">
             {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
           </div>
           <Button
@@ -203,8 +204,8 @@ export function CalendarTab({ token }: CalendarTabProps) {
         </div>
       ) : (
         <div className="glass-card p-6 rounded-2xl">
-          {/* Days of week header */}
-          <div className="grid grid-cols-7 gap-2 mb-4">
+          {/* Days of week header - desktop only */}
+          <div className="hidden md:grid grid-cols-7 gap-2 mb-4">
             {dayNames.map((day) => (
               <div
                 key={day}
@@ -215,8 +216,8 @@ export function CalendarTab({ token }: CalendarTabProps) {
             ))}
           </div>
 
-          {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-2">
+          {/* Calendar grid - desktop */}
+          <div className="hidden md:grid grid-cols-7 gap-2">
             {days.map((date, index) => (
               <div
                 key={index}
@@ -253,6 +254,46 @@ export function CalendarTab({ token }: CalendarTabProps) {
                     </div>
                   </>
                 )}
+              </div>
+            ))}
+          </div>
+
+          {/* Calendar list - mobile */}
+          <div className="md:hidden space-y-3">
+            {days.filter(date => date !== null).map((date, index) => (
+              <div
+                key={index}
+                className={`p-4 rounded-lg border transition-all ${
+                  isToday(date!)
+                    ? "border-primary bg-primary/10"
+                    : "border-border-glass"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="font-semibold">
+                    {fullDayNames[date!.getDay()]}, {date!.getDate()}
+                  </div>
+                  {isToday(date!) && (
+                    <span className="text-xs px-2 py-1 rounded-full gradient-primary text-white">
+                      Dziś
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  {habits.map((habit) => (
+                    <button
+                      key={habit.id}
+                      onClick={() => toggleHabitCheck(habit.id, date!)}
+                      className={`w-full text-sm p-2 rounded transition-all text-left ${
+                        isHabitCompleted(habit.id, date!)
+                          ? "gradient-primary text-white font-medium"
+                          : "bg-muted hover:bg-muted/80 text-muted-foreground"
+                      }`}
+                    >
+                      {habit.name}
+                    </button>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
